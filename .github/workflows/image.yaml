@@ -33,13 +33,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dist: [ubuntu20.04, ubi8]
+        dist: [ubuntu20.04, ubuntu22.04, ubi8]
     steps:
       - uses: actions/checkout@v4
         name: Check out code
       - name: Calculate build vars
         id: vars
         run: |
+          GOLANG_VERSION=$( grep "GOLANG_VERSION ?=" versions.mk )
+          echo "GOLANG_VERSION=${GOLANG_VERSION##GOLANG_VERSION ?= }" >> $GITHUB_ENV
+
           echo "COMMIT_SHORT_SHA=${GITHUB_SHA:0:8}" >> $GITHUB_ENV
           echo "LOWERCASE_REPO_OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | awk '{print tolower($0)}')" >> $GITHUB_ENV
           REPO_FULL_NAME="${{ github.event.pull_request.head.repo.full_name }}"
@@ -68,6 +71,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build image
         env:
+          STAGING_REGISTRY: ghcr.io/${LOWERCASE_REPO_OWNER}
+          BUILDIMAGE: ghcr.io/${LOWERCASE_REPO_OWNER}/k8s-test-infra:devel-go${GOLANG_VERSION}
           IMAGE_NAME: ghcr.io/${LOWERCASE_REPO_OWNER}/k8s-device-plugin
           VERSION: ${COMMIT_SHORT_SHA}
         run: |
