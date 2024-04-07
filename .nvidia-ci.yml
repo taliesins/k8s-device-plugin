@@ -75,6 +75,11 @@ image-ubuntu20.04:
     - .image-pull
     - .dist-ubuntu20.04
 
+image-ubuntu22.04:
+  extends:
+    - .image-pull
+    - .dist-ubuntu22.04
+
 # We skip the integration tests for the internal CI:
 .integration:
   stage: test
@@ -122,6 +127,11 @@ release:ngc-ubuntu20.04:
   extends:
     - .release:ngc
     - .dist-ubuntu20.04
+
+release:ngc-ubuntu22.04:
+  extends:
+    - .release:ngc
+    - .dist-ubuntu22.04
 
 release:ngc-ubi8:
   extends:
